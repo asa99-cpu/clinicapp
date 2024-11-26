@@ -1,62 +1,42 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 
-# Sample data for demonstration
+# Sample data representing clinic patient information
 data = {
-    'Client ID': [1, 2, 3, 4, 5],
-    'Name': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
-    'Age': [30, 45, 35, 50, 40],
-    'Appointment Date': pd.to_datetime(['2024-12-01', '2024-12-03', '2024-12-05', '2024-12-10', '2024-12-15']),
-    'Status': ['Completed', 'Scheduled', 'Completed', 'Scheduled', 'Missed']
+    'Patient ID': [1, 2, 3, 4, 5],
+    'Name': ['John Doe', 'Jane Smith', 'Sam Brown', 'Alice Green', 'Mike Johnson'],
+    'Age': [34, 28, 45, 50, 33],
+    'Appointment Date': ['2024-11-26', '2024-11-25', '2024-11-24', '2024-11-23', '2024-11-22'],
+    'Visit Type': ['Routine Checkup', 'Consultation', 'Follow-up', 'Routine Checkup', 'Emergency']
 }
 
-# Create a DataFrame
+# Convert to DataFrame for easy visualization
 df = pd.DataFrame(data)
 
-# App title and introduction
-st.title("Clinic Client Dashboard")
-st.write("""
-Welcome to the Clinic Client Dashboard! This dashboard provides a simple view of client information, appointments, and general statistics.
-""")
+# Set up the title and layout
+st.title('Clinic Data Dashboard')
+st.markdown('### Overview of patients and appointments')
 
-# Display a summary of client statistics
-st.header("Client Statistics")
-total_clients = len(df)
-completed_appointments = df[df['Status'] == 'Completed'].shape[0]
-scheduled_appointments = df[df['Status'] == 'Scheduled'].shape[0]
-missed_appointments = df[df['Status'] == 'Missed'].shape[0]
-
-st.write(f"Total Clients: {total_clients}")
-st.write(f"Completed Appointments: {completed_appointments}")
-st.write(f"Scheduled Appointments: {scheduled_appointments}")
-st.write(f"Missed Appointments: {missed_appointments}")
-
-# Displaying the table of client information
-st.subheader("Client Information")
+# Display the table
 st.dataframe(df)
 
-# Filter the data by appointment status (Completed, Scheduled, Missed)
-status_filter = st.selectbox("Filter by Appointment Status", ['All', 'Completed', 'Scheduled', 'Missed'])
+# Adding some simple interactive features
+st.sidebar.header('Filter Data')
 
-if status_filter != 'All':
-    filtered_df = df[df['Status'] == status_filter]
-else:
-    filtered_df = df
+# Filter by age range
+age_filter = st.sidebar.slider('Select age range', 20, 60, (20, 60))
+filtered_data = df[(df['Age'] >= age_filter[0]) & (df['Age'] <= age_filter[1])]
 
-st.write(f"Clients with {status_filter} appointments:")
-st.dataframe(filtered_df)
+st.subheader('Filtered Patient Data')
+st.dataframe(filtered_data)
 
-# Visualization: Appointments over time
-st.subheader("Appointments Over Time")
-appointments_count = df.groupby(df['Appointment Date'].dt.date).size()
-st.line_chart(appointments_count)
+# Displaying statistics
+st.subheader('Basic Statistics')
+st.write(f"Total Patients: {len(df)}")
+st.write(f"Average Age: {df['Age'].mean():.2f}")
 
-# Simple status summary for the clinic
-st.subheader("Appointment Status Summary")
-status_counts = df['Status'].value_counts()
-st.bar_chart(status_counts)
-
-# Footer
-st.markdown("---")
-st.write("Dashboard powered by Streamlit")
+# Create a pie chart for 'Visit Type' distribution
+st.subheader('Visit Type Distribution')
+visit_type_count = df['Visit Type'].value_counts()
+st.write(visit_type_count)
+st.bar_chart(visit_type_count)
